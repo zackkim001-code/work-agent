@@ -1,0 +1,22 @@
+# 회사 내부 자료 — 저장소에 올리지 않는다
+.claude/skills/org-reference/references/*
+!.claude/skills/org-reference/references/README.md
+!.claude/skills/org-reference/references/VERSIONS.md
+
+# 테스트 스냅샷 (운영 데이터 아님)
+output/snapshots/*
+!output/snapshots/.gitkeep
+
+# n8n export에 자격증명이 섞일 수 있음
+integrations/n8n/*.json
+
+# 업로드용 zip은 dist/make_zips.py 로 재생성한다
+dist/*.zip
+
+# brief-deliver 실행 중간 산출물 (mp3, 설치된 패키지, 작업 폴더)
+*.mp3
+pylib/
+work/
+
+__pycache__/
+*.pyc

@@ -1,0 +1,113 @@
+{
+  "_comment": "노션 저장소 ID 표. 모든 스킬은 이 파일의 ID만 쓴다. 노션에서 구조를 바꾸면 여기도 같이 바꾼다.",
+  "workspace": "CTR Documentation",
+  "root_page": {
+    "id": "3df9b92a-6770-81b5-8cf1-e2d08800bceb",
+    "url": "https://app.notion.com/p/3df9b92a677081b58cf1e2d08800bceb"
+  },
+  "pages": {
+    "ops": {
+      "title": "운영 기준",
+      "id": "3df9b92a-6770-8124-b065-f27031bace5f",
+      "url": "https://app.notion.com/p/3df9b92a67708124b065f27031bace5f",
+      "sections": ["수집 상태", "주간보고 양식", "역할·권한 요약", "근거 문서 버전", "확인 채널", "전달 채널"],
+      "sections_note": "전달 채널 표(2026-09-22 추가): channel, listen_page_url(안정 URL, brief-deliver가 매일 갱신하는 듣기 페이지), listen_page_note, listen_page_updated_at. brief-deliver만 갱신한다."
+    },
+    "weekly_reports": {
+      "title": "주간보고",
+      "id": "3df9b92a-6770-8162-934e-d47f5c902a37",
+      "url": "https://app.notion.com/p/3df9b92a67708162934ed47f5c902a37",
+      "child_title_pattern": "주간보고 YYYY-Www"
+    }
+  },
+  "databases": {
+    "projects": {
+      "title": "프로젝트",
+      "database_id": "34395a1c-a1a3-40e0-91f2-438eaa847e50",
+      "data_source_id": "530dbf9f-134c-4c6c-928e-c53e6c1bea99",
+      "data_source_url": "collection://530dbf9f-134c-4c6c-928e-c53e6c1bea99",
+      "properties": {
+        "이름": "title",
+        "스레드": "text (한 줄에 하나)",
+        "현재 상황": "text (3~5문장, 덮어쓰기)",
+        "현황 갱신일": "date",
+        "상태": "select: 진행 | 보류 | 종료"
+      },
+      "seed": {
+        "서브원 재고관리": "3df9b92a-6770-81fa-a5f8-d970aeed5fe2",
+        "MRO·일반자재 단가·업체 관리": "3df9b92a-6770-8179-8455-e4b4aaeb3ca9",
+        "유류·포장재 단가인상": "3df9b92a-6770-81fa-8b79-f75326a79227",
+        "미분류": "3df9b92a-6770-817f-9799-e03f9e2fc15c"
+      }
+    },
+    "logs": {
+      "title": "업무 로그",
+      "database_id": "6dbe60ac-3731-4174-8312-22a1c40027b1",
+      "data_source_id": "78533066-70f3-48ed-911a-556a75f09f83",
+      "data_source_url": "collection://78533066-70f3-48ed-911a-556a75f09f83",
+      "properties": {
+        "요약": "title",
+        "entry_id": "text (멱등성 키)",
+        "날짜": "date",
+        "프로젝트": "relation -> projects",
+        "스레드": "text",
+        "유형": "select: 진행 | 결정 | 이슈 | 요청 | 메모",
+        "원문 발췌": "text",
+        "출처": "select: 직접입력 | Outlook | Teams",
+        "출처 참조": "text",
+        "상태": "select: 확정 | 확인대기 | 장기대기 | 제외 | 수정요청",
+        "수정 메모": "text",
+        "메모 대기": "checkbox",
+        "텔레그램 메시지 ID": "text",
+        "판정": "select: 신규 | 중복 | 상충",
+        "상충 대상": "relation -> logs (self)",
+        "상충 해소 기록": "text (해소한 기록의 entry_id)",
+        "최근 언급일": "date",
+        "대기일수": "number",
+        "생성 시각": "created_time (읽기 전용)"
+      }
+    },
+    "tasks": {
+      "title": "할 일",
+      "database_id": "3089b82d-cb3d-4753-a915-225114c34bb9",
+      "data_source_id": "dd44023a-a0d3-4ee6-8434-275771fa471b",
+      "data_source_url": "collection://dd44023a-a0d3-4ee6-8434-275771fa471b",
+      "properties": {
+        "제목": "title",
+        "프로젝트": "relation -> projects",
+        "스레드": "text",
+        "구분": "select: 명시 | 추정",
+        "추정 근거": "text (추정일 때 필수)",
+        "상태": "select: 열림 | 진행 | 보류 | 완료 | 기각 | 확인대기 | 제외",
+        "기한": "date",
+        "출처 로그": "relation -> logs (수집 후보일 때)",
+        "근거 로그": "relation -> logs",
+        "최근 언급일": "date",
+        "처리 방법": "text (C2에서 갱신)",
+        "기각 근거": "text",
+        "생성 시각": "created_time (읽기 전용)"
+      }
+    },
+    "briefs": {
+      "title": "브리핑",
+      "database_id": "478501d6-2ead-43d7-a788-090036c2540e",
+      "data_source_id": "e21a4df3-462f-45ac-8516-5ac920b7a7ec",
+      "data_source_url": "collection://e21a4df3-462f-45ac-8516-5ac920b7a7ec",
+      "properties": {
+        "제목": "title (브리핑 YYYY-MM-DD)",
+        "날짜": "date",
+        "준비 상태": "select: 정상 | 과제 조회 실패 | 처리 방법 생략 | 주간보고 실패",
+        "주간보고": "url"
+      },
+      "body_sections": ["오늘 처리할 업무 과제", "방치 과제", "미해결 상충", "주간보고 초안", "준비 상태", "송출용 요약", "낭독 대본", "낭독 대본 (영어)", "전달 기록"],
+      "body_sections_note": "송출용 요약·낭독 대본은 05:00 brief-prep이 쓰고 06:00 brief-deliver가 카카오톡·듣기 페이지로 내보내는 문안 (설계 8.4 송출 규칙 적용, morning Sections에는 넘기지 않음). 전달 기록은 brief-deliver가 발송 결과를 한 줄씩 추가."
+    }
+  },
+  "query_notes": {
+    "preferred_mode": "rows",
+    "reason": "이 워크스페이스 플랜에서 SQL 모드는 사용량 제한이 있고 다중 데이터소스 SQL은 불가. rows 모드(구조화 필터)를 기본으로 쓰고, SQL은 집계가 꼭 필요할 때만 단일 데이터소스에 쓴다.",
+    "date_property_write_format": "date:<속성명>:start / date:<속성명>:end / date:<속성명>:is_datetime",
+    "checkbox_write_format": "__YES__ / __NO__",
+    "relation_write_format": "페이지 URL 또는 ID 배열"
+  }
+}
