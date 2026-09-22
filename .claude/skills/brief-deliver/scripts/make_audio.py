@@ -18,6 +18,12 @@ edge-tts는 Edge 브라우저의 '소리 내어 읽기'가 쓰는 온라인 음�
 
 edge_tts 모듈이 없으면 `pip install --target <out-dir>/pylib edge-tts`로 설치를 시도한다
 (원격 예약 작업 샌드박스에는 미리 깔려 있지 않다).
+
+인증서: 클라우드 루틴 샌드박스는 외부 HTTPS를 자체 프록시에서 재암호화하고, 신뢰할 CA를
+표준 환경변수 SSL_CERT_FILE(또는 REQUESTS_CA_BUNDLE)로 알려 준다. edge-tts는 이 변수를 무시하고
+certifi 내장 묶음만 쓰므로 그대로는 인증서 검증에 실패한다 (2026-09-22 확인). 그래서 이 스크립트는
+edge-tts를 부르기 전에 certifi.where() 가 그 환경변수의 파일을 돌려주게 한다. 검증을 끄는 것이 아니라
+플랫폼이 지정한 CA를 쓰는 것이다. 변수가 없는 PC에서는 아무 영향이 없다.
 """
 import argparse
 import json
@@ -43,6 +49,22 @@ DEFAULT_VOICES = {
     "en": "en-US-JennyNeural,en-US-GuyNeural",
 }
 
+# 자식 프로세스에서 실행되는 합성 코드. argv: voice, script_file, out_path, rate
+RUNNER = r"""
+import asyncio, os, sys
+voice, script_file, out_path, rate = sys.argv[1:5]
+ca = os.environ.get("SSL_CERT_FILE") or os.environ.get("REQUESTS_CA_BUNDLE")
+if ca and os.path.isfile(ca):
+    import certifi
+    certifi.where = lambda _p=ca: _p   # edge-tts 는 certifi.where() 를 고정 사용한다
+import edge_tts
+with open(script_file, encoding="utf-8") as f:
+    text = f.read().strip()
+async def main():
+    await edge_tts.Communicate(text, voice, rate=rate).save(out_path)
+asyncio.run(main())
+"""
+
 
 def ensure_edge_tts(out_dir, env):
     """edge_tts 를 import 할 수 있게 한다. 없으면 out_dir/pylib 에 설치한다."""
@@ -60,8 +82,7 @@ def ensure_edge_tts(out_dir, env):
 
 
 def synth(voice, script_file, out_path, rate, timeout, env):
-    cmd = [sys.executable, "-m", "edge_tts", "--voice", voice, "--file", script_file,
-           "--write-media", out_path, "--rate", rate]
+    cmd = [sys.executable, "-c", RUNNER, voice, script_file, out_path, rate]
     try:
         r = subprocess.run(cmd, env=env, capture_output=True, text=True, encoding="utf-8",
                            errors="replace", timeout=timeout)
@@ -96,7 +117,8 @@ def main():
         env["PYTHONPATH"] = pylib + os.pathsep + env.get("PYTHONPATH", "")
 
     ok, why = ensure_edge_tts(a.out_dir, env)
-    result = {"files": [], "failed": []}
+    result = {"files": [], "failed": [],
+              "ca_bundle": env.get("SSL_CERT_FILE") or env.get("REQUESTS_CA_BUNDLE") or None}
     if not ok:
         result["failed"].append({"voice": "*", "error": why})
         print(json.dumps(result, ensure_ascii=False))
