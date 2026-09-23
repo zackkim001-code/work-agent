@@ -42,7 +42,9 @@ description: 평일 06:00 원격 예약 작업. 오늘 브리핑 페이지(노�
 
 듣기 페이지는 **매일 같은 아티팩트 URL을 갱신**한다. 이유: 아티팩트마다 출처(origin)가 달라 URL이 바뀌면 사용자가 고른 속도·목소리 기억이 사라지고, 아티팩트가 매일 하나씩 쌓이며, 카톡이 안 와도 즐겨찾기로 열 수 있어야 하기 때문이다.
 
-1. **자연 음성 생성**: `scripts/make_audio.py --script-file script.txt --out-dir work` → stdout JSON의 `files`(목소리별 mp3)와 `failed`. Edge 신경망 음성(선히·인준)을 API 키 없이 만든다. `script_en`이 있으면 `--script-file script_en.txt --lang en`으로 한 번 더 (Jenny·Guy, `brief-jenny.mp3`·`brief-guy.mp3`). `edge_tts` 모듈이 없으면 스크립트가 `pip install --target`으로 설치를 시도한다. 목소리 하나당 최대 90초. **전부 실패해도 멈추지 않는다** — 기기 음성 전용 페이지로 간다 (비공식 서비스라 언제든 막힐 수 있음).
+1. **자연 음성 생성**: `scripts/make_audio.py --script-file script.txt --out-dir work` → stdout JSON의 `files`(목소리별 mp3)와 `failed`. Edge 신경망 음성(선히·인준)을 API 키 없이 만든다. `script_en`이 있으면 `--script-file script_en.txt --lang en`으로 한 번 더 (Jenny·Guy, `brief-jenny.mp3`·`brief-guy.mp3`). `edge_tts` 모듈이 없으면 스크립트가 `pip install --target`으로 설치를 시도한다. 목소리 하나당 최대 90초. **전부 실패해도 멈추지 않는다** — 기기 음성 전용 페이지로 간다.
+
+   ⚠️ **클라우드 루틴 샌드박스에서는 이 단계가 항상 실패한다** (2026-09-22~23 확인). 외부 egress 정책이 `speech.platform.bing.com` 으로의 CONNECT 터널을 403으로 막는다. 인증서 문제가 아니라 호스트 차단이므로 우회하지 않는다. **실패를 한 번 확인하면 즉시 다음 단계로 간다 — 재시도하지 않는다** (재시도는 2분을 버린다). 회사 PC 대화형 세션에서는 정상 동작하므로, 자연 음성이 필요한 날은 PC에서 "브리핑 다시 보내줘"로 재생성한다.
 2. **페이지 생성**: `scripts/make_listen_page.py --date <오늘> --script-file script.txt --summary-file summary.txt [--script-file-en script_en.txt --audio-en "<label>=<path>" …] --brief-url <노션 브리핑 페이지 URL> --audio "<label>=<path>" … --audio-dir audio --out listen.html --manifest manifest.json`
    `--audio`/`--audio-en`은 1번에서 성공한 목소리마다 하나씩. 영어 대본이 있으면 페이지 위에 한국어/English 전환 버튼이 생기고 언어별 재생기가 따로 동작한다 (선택은 기기에 기억). mp3는 HTML에 넣지 않고 `audio/<파일명>?v=<날짜>`로 참조한다. `manifest.json`의 `files` 맵이 아티팩트 `files` 인자다 (`{"audio/brief-sunhi.mp3": "<로컬 경로>", …}`, contentType `audio/mpeg`). 스크립트가 대본의 URL·길이와 mp3 크기를 검사하고 본문을 이스케이프해 넣는다. 자연 음성이 있으면 그 재생기가 위에, 기기 음성은 접힌 예비 섹션으로 내려간다.
 3. **같은 주소로 갱신** (`listen_page_url`이 있을 때). 아티팩트 도구로 순서대로:
